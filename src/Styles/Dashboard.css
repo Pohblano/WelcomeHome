@@ -1,0 +1,43 @@
+#dashboard-wrapper{
+    padding: 1rem 1rem 0 1rem;
+}
+
+ 
+/* //////////// */
+/* Top Banner */
+/* //////////////// */
+
+#d-banner{
+    display: grid;
+    grid-auto-flow: column;
+    /* padding: 1rem 1rem 0 1rem; */
+    
+}#d-banner > h1{
+    font-weight: 700;
+}#d-banner section{
+    display: flex;
+    flex-direction: row;
+    justify-self: end;   
+    align-items: center;
+}#d-avatar > img{
+    width: 30px;
+    border-radius: 20px;
+}
+
+/* //////////// */
+/* Main Grid */
+/* ////////// */
+#d-grid{
+    padding: 2rem 0rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.d-grid-item{
+    height: 500px
+}.d-grid-item > .card{
+    height: 475px;
+    justify-content: center;
+}
+

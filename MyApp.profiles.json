@@ -1,0 +1,75 @@
+[{
+  "_id": {
+    "$oid": "65d1728e93733a19b0080d34"
+  },
+  "name": "Alberto Martinez-Jara",
+  "email": "albertjasa@icloud.com",
+  "password": "$2b$10$1bTsQwWglc9NU1ioTFI0H.oVFx404jYPuGgrK79ZMjAMDxd3aNIWe",
+  "createdAt": {
+    "$date": "2024-02-18T02:59:26.166Z"
+  },
+  "updatedAt": {
+    "$date": "2024-02-18T02:59:26.166Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "65d173b6ddb64b15c9dfc233"
+  },
+  "name": "asdf",
+  "email": "albertjasa@live.com",
+  "password": "$2b$10$WZIwZNx1.zbg83HrJqpgROfKkC6cOHMTQdzF3ka8tzO0paLArC8Oy",
+  "createdAt": {
+    "$date": "2024-02-18T03:04:22.497Z"
+  },
+  "updatedAt": {
+    "$date": "2024-02-18T03:04:22.497Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "65d191b0f0d574e91b31697a"
+  },
+  "name": "dfgh",
+  "email": "dfgh@dfsg.com",
+  "password": "$2b$10$CG3ippQ8ArVJE8rwbHbWYup5m7GxerCwWxda2UuT2wBinsk6pP0DW",
+  "createdAt": {
+    "$date": "2024-02-18T05:12:16.963Z"
+  },
+  "updatedAt": {
+    "$date": "2024-02-18T05:12:16.963Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "65d195e6f0d574e91b3169b6"
+  },
+  "name": "Alberto Martinez-Jarafasdf",
+  "email": "albertjasa@icloud.comsadf",
+  "password": "$2b$10$O2WVRz6vm6ruJvfJYJtrWezmvJYRElZuNG5vBY7pSI3kKSAf4I/cq",
+  "createdAt": {
+    "$date": "2024-02-18T05:30:14.157Z"
+  },
+  "updatedAt": {
+    "$date": "2024-02-18T05:30:14.157Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "65d195f5f0d574e91b3169b8"
+  },
+  "name": "asdf",
+  "email": "albertjasasfd@live.com",
+  "password": "$2b$10$Z6QLHPf5k4eB4Rvr7ajKHuBBS8q8M0DSqZLbu5I2d1i2.8YQKIPRW",
+  "createdAt": {
+    "$date": "2024-02-18T05:30:29.844Z"
+  },
+  "updatedAt": {
+    "$date": "2024-02-18T05:30:29.844Z"
+  },
+  "__v": 0
+}]

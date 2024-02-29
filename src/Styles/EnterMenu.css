@@ -1,0 +1,25 @@
+#enterMenuForm-wrapper{
+  display: none;
+}
+.drop-area {
+    border: 2px dashed #aaa;
+    padding: 20px;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  
+  .file-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .file-item {
+    background-color: #f4f4f4;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin: 5px;
+  }
+
+  

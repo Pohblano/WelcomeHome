@@ -1,0 +1,16 @@
+#form-wrapper{
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+#login-main, #signup-main{ 
+    padding: 7rem 10% 10% 10%;
+}
+#login-card, #signup-card{
+    width: 396px;
+}
+
+#login-submit, #login-signup-submit{
+    border-radius: 20px;
+}
