@@ -52,10 +52,10 @@ const MenuCtrls = {
             { _id: menuID },
             {
               $push: {
-                ['breakfast.attending']: userID,
+                [`${meal.toLowerCase()}.attending`]: userID,
               },
             }
-        ).then(() => res.status(200).json(meal))
+        ).then(() => res.status(200))
         .catch(err => res.json(err))
           
     }

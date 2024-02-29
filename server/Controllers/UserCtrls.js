@@ -35,7 +35,7 @@ const UserCtrls = {
     },
     // Grabs general user information used to display in avatars
     async getAllAvatars(req, res, next){
-        const userList = req.body
+        const userList = req.body;
 
         await UserModel.find({ "_id": { $in: userList.users } }, 'name img email createdAt')
             .then(data => res.status(200).json(data))

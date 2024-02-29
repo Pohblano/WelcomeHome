@@ -2,7 +2,7 @@ import '../Styles/Dashboard.css'
 import photo from '../avatar.jpg'
 
 // Libraries
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Button, Card, Nav } from 'react-bootstrap'
 import { Link } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
@@ -18,14 +18,20 @@ export default function Dashboard({ token, setToken, deleteToken }) {
     const [user, setUser] = useState({});
     const [err, setErr] = useState('');
     const { _id } = jwtDecode(token);
-
-    useEffect(() => {
-        
-
-        // Calls back-end for logged-in user data
-        UserApi.getId(_id)
-            .then(user => setUser(user))
-            .catch(err => setErr(err))
+    const hasLoadedBefore = useRef(true)
+    
+    useEffect(()=> {
+      if(hasLoadedBefore.current){
+        //your initializing code runs only once
+         // Calls back-end for logged-in user data
+         UserApi.getId(_id)
+         .then(user => setUser(user))
+         .catch(err => setErr(err))
+       
+        hasLoadedBefore.current = false;
+      } else{
+        //subsequent renders
+      }
     }, [])
 
     return (

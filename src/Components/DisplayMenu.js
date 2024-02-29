@@ -1,6 +1,6 @@
 import '../Styles/DisplayMenu.css'
 // Library Imports
-import React, { useEffect, useState, setState } from 'react'
+import React, { useEffect, useState, setState, useCallback, useRef } from 'react'
 import $, { contains } from 'jquery'
 import { Button } from 'react-bootstrap'
 // Custom Component Imports
@@ -14,7 +14,7 @@ import { UserApi } from '../Api/UserApi'
 
 export default function DisplayMenu({ userID }) {
     const [menuID, setMenuID] = useState('');
-    // const [menuObj, setMenuObj] = useState({})
+    const [menuObj, setMenuObj] = useState({})
     const [breakfast, setBreakfast] = useState({})
     const [lunch, setLunch] = useState({})
     const [dinner, setDinner] = useState({})
@@ -22,36 +22,67 @@ export default function DisplayMenu({ userID }) {
     const [err, setErr] = useState('')
 
 
-    useEffect(() => {
-        // Adds event handler animation
-        $(".option").on('click', function () {
-            $(".option").removeClass("active");
-            $(this).addClass("active");
-        });
+    // useEffect(() => {
+    //     // Adds event handler animation
+    //     $(".option").on('click', function () {
+    //         $(".option").removeClass("active");
+    //         $(this).addClass("active");
+    //     });
 
-        // API call to retrieve the day's menu
-        MenuApi.getTodaysMenu()
-            .then(data => {
-                // setMenuObj(data)
-                setMenuID(data._id)
-                setBreakfast(data.breakfast)
-                setLunch(data.lunch)
-                setDinner(data.dinner)
-            })
-            .catch(err => { console.log('Could not retrieve MENU data') })
+    //     // API call to retrieve the day's menu
+    //     MenuApi.getTodaysMenu()
+    //         .then(data => {
+    //             setMenuObj(data)
+    //             setMenuID(data._id)
+    //             setBreakfast(data.breakfast)
+    //             setLunch(data.lunch)
+    //             setDinner(data.dinner)
+    //         })
+    //         .catch(err => { console.log('Could not retrieve MENU data') })
+    // }, [])
+
+    const hasLoadedBefore = useRef(true)
+    useEffect(() => {
+        if (hasLoadedBefore.current) {
+            //  Adds event handler animation
+            $(".option").on('click', function () {
+                $(".option").removeClass("active");
+                $(this).addClass("active");
+            });
+
+            // API call to retrieve the day's menu
+            MenuApi.getTodaysMenu()
+                .then(data => {
+                    setMenuObj(data)
+                    setMenuID(data._id)
+                    setBreakfast(data.breakfast)
+                    setLunch(data.lunch)
+                    setDinner(data.dinner)
+                })
+                .catch(err => { console.log('Could not retrieve MENU data') })
+            hasLoadedBefore.current = false;
+        } else {
+            //subsequent renders
+        }
     }, [])
+
+
 
     // Sets user to attend a meal
     function isAttending(meal) {
-        if (breakfast.attending.indexOf(userID) === -1) {
+        const mealObj = menuObj[meal.toLowerCase()]
+
+        if (mealObj.attending.indexOf(userID) === -1) {
             MenuApi.attend(menuID, meal, userID)
                 .then(() => {
-                    breakfast.attending.push(userID)
-                    setBreakfast(breakfast)
-                })
-                .catch(err => console.log(err))
-        }
+                    mealObj.attending.push(userID)
+                    const fString = `const fn = function (){ set${meal}(mealObj);}`
+                    const f = new Function(fString)
+                    f()
+                    setMenuObj(menuObj)
 
+                }).catch(err => console.log(err))
+        }
     }
 
     return (
@@ -91,19 +122,45 @@ function MenuFront({ entree, img, toggleCheck, iconClass, meal }) {
 
 // Additional menu details and functions
 function MenuBack({ userID, time, info, entree, meal, toggleCheck, isAttending, attending }) {
-    let newTime = (time.split(':')[0] - 12 > 0) ? `${time.split(':')[0] - 12}:${time.split(':')[1]} PM` : `${time.split(':')[0]}:${time.split(':')[1]} AM`
+    const [users, setUsers] = useState([])
+    const amString = `${time.split(':')[0]}:${time.split(':')[1]} AM`
+    const pmString = `${time.split(':')[0] - 12}:${time.split(':')[1]} PM`
+    const newTime = (time.split(':')[0] - 12 > 0) ? pmString : amString
+
+    // // every time id changed, new book will be loaded
+    // const loadUsers = useCallback(async () => {
+    //     UserApi.getAllAvatars(attending)
+    //         .then(results => {
+    //             setUsers(results)
+    //         })
+    // }, [])
+
+    // useEffect(() => {
+    //     loadUsers()
+    // }, [loadUsers])
+
+    // // Retrieve list of users upon render 
+    // useEffect(() => {
+    //     UserApi.getAllAvatars(attending)
+    //         .then(results => {
+    //             setUsers([...results])
+    //         })
+    // }, [])
 
 
-    // UserApi.getAllAvatars(attending)
-    //     .then(results => {
-    //         console.log(results)
-    //     })
+    const hasLoadedBefore = useRef(true)
     useEffect(() => {
-        UserApi.getAllAvatars(attending)
-        .then(results => {
-            console.log(results)
-        })
-    },[])
+        if (hasLoadedBefore.current) {
+            //your initializing code runs only once
+            UserApi.getAllAvatars(attending)
+                .then(results => {
+                    setUsers(results)
+                })
+            hasLoadedBefore.current = false;
+        } else {
+            //subsequent renders
+        }
+    }, [])
 
 
     return (
@@ -113,32 +170,25 @@ function MenuBack({ userID, time, info, entree, meal, toggleCheck, isAttending, 
 
                 <h5 className=''>{entree}</h5>
                 <p className=''>{info}</p>
-                {(attending.indexOf(userID) === -1) ? <Button className='btn-warning' size="md" onClick={() => isAttending(meal)}>Attend</Button>
+                {(attending.indexOf(userID) === -1) ?
+                    <Button className='btn-warning' size="md" onClick={() => isAttending(meal)}>Attend</Button>
                     :
                     <Button className='btn-dark disabled'>Attending</Button>
                 }
-
             </div>
-            <div className='icon-tray'>
 
-                <div className='avatar-icons align-items-baseline'>
-                    {/* <p></p> */}
-                    <div className='icon' style={{ backgroundImage: `url()` }} >
-                        <i className="fa fa-user" aria-hidden="true"></i>
-                    </div>
-                    <div className='icon' >
-                        <i className="fa fa-user" aria-hidden="true"></i>
-                    </div>
-                    {/* 
-                    {if users are more than a certain amount then display this button} */}
+            <div className='icon-tray'>
+                <div className='avatar-icons'>
+
+                    {(attending.length > 0) ?
+                        users.map((user, idx) => {
+                            if (idx < 4) return <div key={user._id} className='icon' style={{ backgroundImage: `url(${user.img})` }} ></div>
+                        }) : null
+                    }
+
                     <div className='icon icon-users text-bold' >
                         {(attending.length > 0) ? `+${attending.length}` : <i className="fas fa-user-times" aria-hidden="true"></i>}
-
                     </div>
-                    {/* display 5 user then anything extra display '{+ amount of users not displayed}' */}
-                    {/* <div className='icon' >
-                        +20
-                    </div> */}
 
                 </div>
                 <div className="icon ms-sm-auto" onClick={toggleCheck}>

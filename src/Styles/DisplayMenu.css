@@ -103,6 +103,7 @@
     height: 40px;
     border-radius: 100%;
     background-color: white;
+    background-size: cover;
  }
  body .options .option .label .info {
     display: flex;
