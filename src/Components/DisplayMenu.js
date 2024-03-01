@@ -2,13 +2,12 @@ import '../Styles/DisplayMenu.css'
 // Library Imports
 import React, { useEffect, useState, setState, useCallback, useRef } from 'react'
 import $, { contains } from 'jquery'
-import { Button } from 'react-bootstrap'
+import { Button, Tooltip, OverlayTrigger } from 'react-bootstrap'
 // Custom Component Imports
 
 // API import
 import { MenuApi } from '../Api/MenuApi'
 import { UserApi } from '../Api/UserApi'
-
 
 
 
@@ -18,30 +17,10 @@ export default function DisplayMenu({ userID }) {
     const [breakfast, setBreakfast] = useState({})
     const [lunch, setLunch] = useState({})
     const [dinner, setDinner] = useState({})
-    // const [attending, setAttending] = useState([])
     const [err, setErr] = useState('')
-
-
-    // useEffect(() => {
-    //     // Adds event handler animation
-    //     $(".option").on('click', function () {
-    //         $(".option").removeClass("active");
-    //         $(this).addClass("active");
-    //     });
-
-    //     // API call to retrieve the day's menu
-    //     MenuApi.getTodaysMenu()
-    //         .then(data => {
-    //             setMenuObj(data)
-    //             setMenuID(data._id)
-    //             setBreakfast(data.breakfast)
-    //             setLunch(data.lunch)
-    //             setDinner(data.dinner)
-    //         })
-    //         .catch(err => { console.log('Could not retrieve MENU data') })
-    // }, [])
-
     const hasLoadedBefore = useRef(true)
+
+    // 
     useEffect(() => {
         if (hasLoadedBefore.current) {
             //  Adds event handler animation
@@ -67,32 +46,33 @@ export default function DisplayMenu({ userID }) {
     }, [])
 
 
-
     // Sets user to attend a meal
     function isAttending(meal) {
-        const mealObj = menuObj[meal.toLowerCase()]
+        const mealStr = meal.toLowerCase()
+        const mealObj = menuObj[mealStr]
 
         if (mealObj.attending.indexOf(userID) === -1) {
             MenuApi.attend(menuID, meal, userID)
-                .then(() => {
-                    mealObj.attending.push(userID)
-                    const fString = `const fn = function (){ set${meal}(mealObj);}`
-                    const f = new Function(fString)
-                    f()
-                    setMenuObj(menuObj)
+                .then((data) => {
+                    setMenuObj(data)
+                    eval(`set${meal}(data.${mealStr})`)
+
 
                 }).catch(err => console.log(err))
         }
     }
 
     return (
+
         <div className='p-4 card'>
             <h2 id="menu-header text-light-emphasis">Jaime's Kitchen</h2>
             <div className="options" >
+
                 <MenuToggle userID={userID} optClass={'option active'} iconClass={'fa fa-coffee'} meal={'Breakfast'} isAttending={isAttending} {...breakfast} />
                 <MenuToggle userID={userID} optClass={'option'} iconClass={'fa fa-heart'} isAttending={isAttending} meal={'Lunch'} {...lunch} />
                 <MenuToggle userID={userID} optClass={'option'} iconClass={"fa fa-cutlery"} isAttending={isAttending} meal={'Dinner'} {...dinner} />
             </div>
+
         </div>
     )
 }
@@ -127,49 +107,21 @@ function MenuBack({ userID, time, info, entree, meal, toggleCheck, isAttending, 
     const pmString = `${time.split(':')[0] - 12}:${time.split(':')[1]} PM`
     const newTime = (time.split(':')[0] - 12 > 0) ? pmString : amString
 
-    // // every time id changed, new book will be loaded
-    // const loadUsers = useCallback(async () => {
-    //     UserApi.getAllAvatars(attending)
-    //         .then(results => {
-    //             setUsers(results)
-    //         })
-    // }, [])
-
-    // useEffect(() => {
-    //     loadUsers()
-    // }, [loadUsers])
-
-    // // Retrieve list of users upon render 
-    // useEffect(() => {
-    //     UserApi.getAllAvatars(attending)
-    //         .then(results => {
-    //             setUsers([...results])
-    //         })
-    // }, [])
-
-
-    const hasLoadedBefore = useRef(true)
+    // Retrieve list of users upon render 
     useEffect(() => {
-        if (hasLoadedBefore.current) {
-            //your initializing code runs only once
-            UserApi.getAllAvatars(attending)
-                .then(results => {
-                    setUsers(results)
-                })
-            hasLoadedBefore.current = false;
-        } else {
-            //subsequent renders
-        }
-    }, [])
-
+        UserApi.getAllAvatars(attending)
+            .then(results => setUsers(results))
+    }, [attending])
 
     return (
         <div className='back-card'>
+
             <div className=''>
                 <span className='d-flex align-items-baseline mb-3'><h1>{meal}</h1><h2 className='ms-2'>@ {newTime}</h2> </span>
 
                 <h5 className=''>{entree}</h5>
                 <p className=''>{info}</p>
+
                 {(attending.indexOf(userID) === -1) ?
                     <Button className='btn-warning' size="md" onClick={() => isAttending(meal)}>Attend</Button>
                     :
@@ -182,7 +134,12 @@ function MenuBack({ userID, time, info, entree, meal, toggleCheck, isAttending, 
 
                     {(attending.length > 0) ?
                         users.map((user, idx) => {
-                            if (idx < 4) return <div key={user._id} className='icon' style={{ backgroundImage: `url(${user.img})` }} ></div>
+                            if (idx < 4) {
+                                return <OverlayTrigger key={user.name} placement='bottom' overlay={<Tooltip>{user.name}</Tooltip>}>
+                                    <div key={user._id} className='icon' style={{ backgroundImage: `url(${user.img})` }} ></div>
+                                </OverlayTrigger>
+
+                            }
                         }) : null
                     }
 
@@ -203,9 +160,14 @@ function MenuBack({ userID, time, info, entree, meal, toggleCheck, isAttending, 
 // Toggles betweem different components
 function MenuToggle({ userID, entree, info, time, img, optClass, iconClass, meal, isAttending, attending }) {
     const [toggle, setToggle] = useState(true);
+    const [userList, setUserList] = useState([])
     const toggleChecked = () => {
         setToggle(toggle => !toggle);
     }
+    // console.log('Menutoggle', meal,attending)
+
+    useEffect(() => setUserList(attending))
+
     return (
         <div className={optClass} style={{ backgroundImage: `url(${img})` }}>
             {toggle && <MenuFront entree={entree} img={img} iconClass={iconClass} toggleCheck={toggleChecked} meal={meal} />}

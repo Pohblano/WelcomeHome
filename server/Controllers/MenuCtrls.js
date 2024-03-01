@@ -28,7 +28,6 @@ const MenuCtrls = {
                 time: data.dinnerTime,
                 img: data.files[2],
                 attending: []
-
             },
             uploadedAt: new Date().toDateString()
         }
@@ -43,19 +42,19 @@ const MenuCtrls = {
             .then(menu => res.status(200).json(menu))
             .catch(err => res.json(err))
     },
-    // Updates the days menu and meal attendance
+    // Updates the days menu and meal attendance 
     async attendMenu(req, res, next) {
         const { menuID, meal } = req.params
         const { userID } = req.body;
 
-        await MenuModel.updateOne(
-            { _id: menuID },
+        await MenuModel.findByIdAndUpdate(
+            menuID,
             {
               $push: {
                 [`${meal.toLowerCase()}.attending`]: userID,
-              },
-            }
-        ).then(() => res.status(200))
+              }
+            },{new:true}
+        ).then((menu) => res.status(200).json(menu))
         .catch(err => res.json(err))
           
     }

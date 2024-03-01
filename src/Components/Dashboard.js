@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 // Components
 import DisplayMenu from './DisplayMenu.js'
-import SliderComponent from './SliderComponent.js';
+// import SliderComponent from './SliderComponent.js';
 import Footer from './Utils/Footer.js';
 import EnterMenu from './EnterMenu.js';
 // API
@@ -18,20 +18,26 @@ export default function Dashboard({ token, setToken, deleteToken }) {
     const [user, setUser] = useState({});
     const [err, setErr] = useState('');
     const { _id } = jwtDecode(token);
-    const hasLoadedBefore = useRef(true)
-    
-    useEffect(()=> {
-      if(hasLoadedBefore.current){
-        //your initializing code runs only once
-         // Calls back-end for logged-in user data
-         UserApi.getId(_id)
-         .then(user => setUser(user))
-         .catch(err => setErr(err))
-       
-        hasLoadedBefore.current = false;
-      } else{
-        //subsequent renders
-      }
+    // const hasLoadedBefore = useRef(true)
+
+    // useEffect(()=> {
+    //   if(hasLoadedBefore.current){
+    //     //your initializing code runs only once
+    //      // Calls back-end for logged-in user data
+    //      UserApi.getId(_id)
+    //      .then(user => setUser(user))
+    //      .catch(err => setErr(err))
+
+    //     hasLoadedBefore.current = false;
+    //   } else{
+    //     //subsequent renders
+    //   }
+    // }, [])
+
+    useEffect(() => {
+        UserApi.getId(_id)
+            .then(user => setUser(user))
+            .catch(err => setErr(err))
     }, [])
 
     return (
@@ -52,7 +58,7 @@ export default function Dashboard({ token, setToken, deleteToken }) {
 
                 <div id="d-grid">
                     <div className="w-full p-2 lg:w-2/3 d-grid-item">
-                        <DisplayMenu userID={_id}/>
+                        <DisplayMenu userID={_id} />
                     </div>
                     {/* <div className="w-full p-2 lg:w-1/3 d-grid-item">
                         <Card style={{ width: '18rem' }}>
