@@ -41,3 +41,10 @@
     justify-content: center;
 }
 
+
+
+@media screen and (max-width: 558px){
+    #dashboard-wrapper{
+        padding: 0;
+    }
+}

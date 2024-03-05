@@ -9,8 +9,6 @@ import { Button, Tooltip, OverlayTrigger } from 'react-bootstrap'
 import { MenuApi } from '../Api/MenuApi'
 import { UserApi } from '../Api/UserApi'
 
-
-
 export default function DisplayMenu({ userID }) {
     const [menuID, setMenuID] = useState('');
     const [menuObj, setMenuObj] = useState({})
@@ -20,7 +18,7 @@ export default function DisplayMenu({ userID }) {
     const [err, setErr] = useState('')
     const hasLoadedBefore = useRef(true)
 
-    // 
+    // Functions to run on component render
     useEffect(() => {
         if (hasLoadedBefore.current) {
             //  Adds event handler animation
@@ -71,14 +69,16 @@ export default function DisplayMenu({ userID }) {
                 <MenuToggle userID={userID} optClass={'option active'} iconClass={'fa fa-coffee'} meal={'Breakfast'} isAttending={isAttending} {...breakfast} />
                 <MenuToggle userID={userID} optClass={'option'} iconClass={'fa fa-heart'} isAttending={isAttending} meal={'Lunch'} {...lunch} />
                 <MenuToggle userID={userID} optClass={'option'} iconClass={"fa fa-cutlery"} isAttending={isAttending} meal={'Dinner'} {...dinner} />
+
             </div>
 
         </div>
     )
 }
 
-
+/////////////////////////
 // Basic menu details
+/////////////////////////
 function MenuFront({ entree, img, toggleCheck, iconClass, meal }) {
     return (
         <div className='front-card'>
@@ -92,7 +92,7 @@ function MenuFront({ entree, img, toggleCheck, iconClass, meal }) {
                     <div className="sub">{entree}</div>
                 </div>
 
-                <div className="icon me-sm-3 ms-sm-auto" onClick={toggleCheck}>
+                <div className="icon me-3 ms-auto" onClick={toggleCheck}>
                     <i className="fa fa-share"></i>
                 </div>
             </div>
@@ -100,7 +100,9 @@ function MenuFront({ entree, img, toggleCheck, iconClass, meal }) {
     )
 }
 
+////////////////////////////////////////
 // Additional menu details and functions
+////////////////////////////////////////
 function MenuBack({ userID, time, info, entree, meal, toggleCheck, isAttending, attending }) {
     const [users, setUsers] = useState([])
     const amString = `${time.split(':')[0]}:${time.split(':')[1]} AM`
@@ -116,12 +118,13 @@ function MenuBack({ userID, time, info, entree, meal, toggleCheck, isAttending, 
     return (
         <div className='back-card'>
 
-            <div className=''>
-                <span className='d-flex align-items-baseline mb-3'><h1>{meal}</h1><h2 className='ms-2'>@ {newTime}</h2> </span>
+            <div className='d-grid'>
 
+                <span className='d-flex align-items-baseline mb-sm-3'><h1>{meal}</h1><h2 className='ms-2'>@ {newTime}</h2> </span>
                 <h5 className=''>{entree}</h5>
-                <p className=''>{info}</p>
+                <p id='style-8'>{info}</p>
 
+                {/* Checks if user is attending the meal in view */}
                 {(attending.indexOf(userID) === -1) ?
                     <Button className='btn-warning' size="md" onClick={() => isAttending(meal)}>Attend</Button>
                     :
@@ -131,7 +134,7 @@ function MenuBack({ userID, time, info, entree, meal, toggleCheck, isAttending, 
 
             <div className='icon-tray'>
                 <div className='avatar-icons'>
-
+                    {/* Creates user avatars to display based on users attending specific meal */}
                     {(attending.length > 0) ?
                         users.map((user, idx) => {
                             if (idx < 4) {
@@ -142,12 +145,13 @@ function MenuBack({ userID, time, info, entree, meal, toggleCheck, isAttending, 
                             }
                         }) : null
                     }
-
+                    {/* Displays total amount of users attending specific meal */}
                     <div className='icon icon-users text-bold' >
                         {(attending.length > 0) ? `+${attending.length}` : <i className="fas fa-user-times" aria-hidden="true"></i>}
                     </div>
 
                 </div>
+
                 <div className="icon ms-sm-auto" onClick={toggleCheck}>
                     <i className="fa fa-share"></i>
                 </div>
@@ -157,16 +161,14 @@ function MenuBack({ userID, time, info, entree, meal, toggleCheck, isAttending, 
     )
 }
 
+///////////////////////////////////////
 // Toggles betweem different components
+///////////////////////////////////////
 function MenuToggle({ userID, entree, info, time, img, optClass, iconClass, meal, isAttending, attending }) {
     const [toggle, setToggle] = useState(true);
-    const [userList, setUserList] = useState([])
-    const toggleChecked = () => {
-        setToggle(toggle => !toggle);
-    }
-    // console.log('Menutoggle', meal,attending)
-
-    useEffect(() => setUserList(attending))
+    const toggleChecked = () => setToggle(toggle => !toggle)
+    // Temporary bug fix and resets toggle to display original card component
+    $(".option").on('click', () => setToggle(true));
 
     return (
         <div className={optClass} style={{ backgroundImage: `url(${img})` }}>

@@ -1,22 +1,27 @@
 import '../Styles/Forms.css'
+// Library imports
 import React, { useEffect, useState } from "react"
 import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import { useNavigate, Link } from "react-router-dom"
+// API imports
 import { UserApi } from "../Api/UserApi"
+// Custom Component Imports
 import Footer from './Utils/Footer';
 
 
 
 const SignUp = () => {
     const [validated, setValidated] = useState(false);
+    const [errors, setErrors] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         password: '',
     });
-    const [errors, setErrors] = useState(null);
     const navigate = useNavigate();
+    
 
+    // Handles data input and updates data to be sent to backend
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
@@ -25,6 +30,7 @@ const SignUp = () => {
         }));
     };
 
+    // Submits form data to backend to be processed
     const handleSubmit = (e) => {
         e.preventDefault();
         const form = e.currentTarget;
@@ -47,6 +53,8 @@ const SignUp = () => {
                 <Row className="justify-content-center mt-5">
                     <Card id="signup-card" className="text-center pt-4 px-4">
                         <Card.Body >
+
+                            {/* Main form body */}
                             <Form noValidate validated={validated} onSubmit={handleSubmit} className="text-primary">
                                 <Form.Group controlId="formBasicName" className="text-start">
                                     <Form.Label>Name</Form.Label>
@@ -58,6 +66,7 @@ const SignUp = () => {
                                         onChange={handleChange}
                                         required
                                     />
+                                    {/* Displays error */}
                                     <Form.Control.Feedback type="invalid">
                                         Please enter your name.
                                     </Form.Control.Feedback>
@@ -73,6 +82,7 @@ const SignUp = () => {
                                         onChange={handleChange}
                                         required
                                     />
+                                    {/* Displays error */}
                                     <Form.Control.Feedback type="invalid">
                                         Please enter an email.
                                     </Form.Control.Feedback>
@@ -88,6 +98,7 @@ const SignUp = () => {
                                         onChange={handleChange}
                                         required
                                     />
+                                    {/* Displays error */}
                                     <Form.Control.Feedback type="invalid">
                                         Please enter a password.
                                     </Form.Control.Feedback>
@@ -118,63 +129,3 @@ const SignUp = () => {
 
 
 export default SignUp
-
-
-
-// <Container>
-//             <Row className="justify-content-md-center mt-5">
-//                 <Col md="6">
-//                     <h1 className="text-center mb-4">Sign Up</h1>
-// <Form noValidate validated={validated} onSubmit={handleSubmit}>
-//     <Form.Group controlId="formBasicUsername">
-//         <Form.Label>Name</Form.Label>
-//         <Form.Control
-//             type="text"
-//             placeholder="Enter your full name"
-//             name="name"
-//             value={formData.name}
-//             onChange={handleChange}
-//             required
-//         />
-//         <Form.Control.Feedback type="invalid">
-//             Please enter your name.
-//         </Form.Control.Feedback>
-//     </Form.Group>
-
-//     <Form.Group controlId="formBasicEmail">
-//         <Form.Label>Email</Form.Label>
-//         <Form.Control
-//             type="email"
-//             placeholder="Enter Email"
-//             name="email"
-//             value={formData.email}
-//             onChange={handleChange}
-//             required
-//         />
-//         <Form.Control.Feedback type="invalid">
-//             Please enter an email.
-//         </Form.Control.Feedback>
-//     </Form.Group>
-
-//     <Form.Group controlId="formBasicPassword">
-//         <Form.Label>Password</Form.Label>
-//         <Form.Control
-//             type="password"
-//             placeholder="Password"
-//             name="password"
-//             value={formData.password}
-//             onChange={handleChange}
-//             required
-//         />
-//         <Form.Control.Feedback type="invalid">
-//             Please enter a password.
-//         </Form.Control.Feedback>
-//     </Form.Group>
-
-//     <Button variant="primary" type="submit" className="w-100">
-//         Sign Up
-//     </Button>
-// </Form>
-//                 </Col>
-//             </Row>
-//         </Container>

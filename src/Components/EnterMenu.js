@@ -1,9 +1,9 @@
 import '../Styles/EnterMenu.css'
-// Api
-import { MenuApi } from '../Api/MenuApi.js'
 // Library Imports
 import React, { useEffect, useState } from "react"
 import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
+// API Imports
+import { MenuApi } from '../Api/MenuApi.js'
 // Custom Component Imports
 import Error from './Utils/Error.js'
 import DragDropInput from './Utils/DragDropInput.js';
@@ -26,6 +26,7 @@ export default function EnterMenu() {
         }));
     };
 
+    // Submits form data to backend
     const handleSubmit = (e) => {
         const form = e.currentTarget;
         e.preventDefault();
@@ -44,13 +45,16 @@ export default function EnterMenu() {
                 <Row className="justify-content-center mt-5">
                     <Card id="form-card" className="text-center pt-4 px-4">
                         <Card.Body >
+
+                            {/* Main form body */}
                             <Form noValidate validated={validated} onSubmit={handleSubmit} className="text-primary">
-                                {
+                                {   
+                                    // Generates inputs for each corresponding meal
                                     meals.map((meal, index) => (
                                         <div key={index} >
+
                                             <Form.Label><h2>{meal.charAt(0).toUpperCase() + meal.slice(1)}</h2></Form.Label>
                                             <Form.Group className="text-start">
-
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="Enter main entree"
@@ -59,12 +63,13 @@ export default function EnterMenu() {
                                                     onChange={handleChange}
                                                     required
                                                 />
+                                                {/* Display error message */}
                                                 <Form.Control.Feedback type="invalid">
                                                     Please enter an Entree.
                                                 </Form.Control.Feedback>
                                             </Form.Group>
-                                            <Form.Group className="text-start">
 
+                                            <Form.Group className="text-start">
                                                 <Form.Control
                                                     as="textarea"
                                                     rows={3}
@@ -75,12 +80,13 @@ export default function EnterMenu() {
                                                     onChange={handleChange}
                                                     required
                                                 />
+                                                {/* Display error message */}
                                                 <Form.Control.Feedback type="invalid">
                                                     Please enter more information.
                                                 </Form.Control.Feedback>
                                             </Form.Group>
-                                            <Form.Group className="text-start">
 
+                                            <Form.Group className="text-start">
                                                 <Form.Control
                                                     className="text-md"
                                                     type="time"
@@ -89,6 +95,7 @@ export default function EnterMenu() {
                                                     onChange={handleChange}
                                                     required
                                                 />
+                                                {/* Display error message */}
                                                 <Form.Control.Feedback type="invalid">
                                                     Please enter a time.
                                                 </Form.Control.Feedback>
@@ -99,9 +106,10 @@ export default function EnterMenu() {
                                         </div>
                                     ))
                                 }
-
+                                {/* Submit form button */}
                                 <Button variant="primary" type="submit" className="w-100 mt-4 mb-3">Submit</Button>
                             </Form>
+                            
                         </Card.Body>
                     </Card>
                 </Row>

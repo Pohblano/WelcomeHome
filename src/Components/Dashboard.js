@@ -18,27 +18,28 @@ export default function Dashboard({ token, setToken, deleteToken }) {
     const [user, setUser] = useState({});
     const [err, setErr] = useState('');
     const { _id } = jwtDecode(token);
-    // const hasLoadedBefore = useRef(true)
+    const hasLoadedBefore = useRef(true)
 
-    // useEffect(()=> {
-    //   if(hasLoadedBefore.current){
-    //     //your initializing code runs only once
-    //      // Calls back-end for logged-in user data
-    //      UserApi.getId(_id)
-    //      .then(user => setUser(user))
-    //      .catch(err => setErr(err))
+    // CHANGED TO THIS CONDITIONING TO ENSURE THE COMPONENT DOES NOT RENDER MULTIPLE TIMES AFTER INITAL RENDER
+    useEffect(()=> {
+      if(hasLoadedBefore.current){
+        //your initializing code runs only once
+         // Calls back-end for logged-in user data
+         UserApi.getId(_id)
+         .then(user => setUser(user))
+         .catch(err => setErr(err))
 
-    //     hasLoadedBefore.current = false;
-    //   } else{
-    //     //subsequent renders
-    //   }
-    // }, [])
-
-    useEffect(() => {
-        UserApi.getId(_id)
-            .then(user => setUser(user))
-            .catch(err => setErr(err))
+        hasLoadedBefore.current = false;
+      } else{
+        //subsequent renders
+      }
     }, [])
+
+    // useEffect(() => {
+    //     UserApi.getId(_id)
+    //         .then(user => setUser(user))
+    //         .catch(err => setErr(err))
+    // }, [])
 
     return (
         <>
