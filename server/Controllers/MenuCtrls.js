@@ -6,6 +6,7 @@ const UserModel = require('../Models/Users')
 const MenuCtrls = {
     // Creates menu entry in MENU collections
     async createMenu(req, res, next) {
+        console.log(req.body)
         const data = req.body
         const obj = {
             breakfast: {
@@ -29,10 +30,13 @@ const MenuCtrls = {
                 img: data.files[2],
                 attending: []
             },
+            snacksAndBev: data.snacksAndBev,
             uploadedAt: new Date().toDateString()
         }
         await MenuModel.create(obj)
-            .then(data => res.status(200))
+            .then(data => {
+                res.status(200)
+            })
             .catch(err => res.json(err))
     },
     // Gets the day's menu from MENU collections

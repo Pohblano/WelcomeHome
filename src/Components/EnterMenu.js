@@ -2,6 +2,8 @@ import '../Styles/EnterMenu.css'
 // Library Imports
 import React, { useEffect, useState } from "react"
 import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
+import { TextField, InputAdornment, FormGroup } from '@mui/material';
+import { Button as Btn } from '@mui/material'
 // API Imports
 import { MenuApi } from '../Api/MenuApi.js'
 // Custom Component Imports
@@ -18,7 +20,7 @@ export default function EnterMenu() {
     // const [errors, setErrors] = useState();
 
     // Handles general input events
-    const handleChange = (e) => {
+    const handleChange = (e, idx) => {
         const { name, value } = e.target;
         setFormData((prevData) => ({
             ...prevData,
@@ -32,11 +34,11 @@ export default function EnterMenu() {
         e.preventDefault();
         formData['files'] = files
 
-        // Clear form after submission
         setValidated(true);
         if (form.checkValidity()) {
             MenuApi.create(formData)
         } else e.stopPropagation();
+
     };
 
     return (
@@ -48,7 +50,7 @@ export default function EnterMenu() {
 
                             {/* Main form body */}
                             <Form noValidate validated={validated} onSubmit={handleSubmit} className="text-primary">
-                                {   
+                                {
                                     // Generates inputs for each corresponding meal
                                     meals.map((meal, index) => (
                                         <div key={index} >
@@ -106,10 +108,14 @@ export default function EnterMenu() {
                                         </div>
                                     ))
                                 }
+
+                                <Form.Label><h2>Snacks & Beverages</h2></Form.Label>
+                                <SnacksAndBevInput handleChange={handleChange} setFormData={setFormData} />
+
                                 {/* Submit form button */}
                                 <Button variant="primary" type="submit" className="w-100 mt-4 mb-3">Submit</Button>
                             </Form>
-                            
+
                         </Card.Body>
                     </Card>
                 </Row>
@@ -119,3 +125,62 @@ export default function EnterMenu() {
 };
 
 
+function SnacksAndBevInput({ handleChange, setFormData }) {
+    const [count, setCount] = useState(0);
+    const [inputs, setInputs] = useState(Array.from({ length: count }, () => ''));
+
+    const handleInputChange = (index, value) => {
+        const newInputs = [...inputs];
+        newInputs[index] = value;
+        setInputs(newInputs);
+        setFormData((prevData) => ({
+            ...prevData,
+            snacksAndBev: inputs,
+        }));
+    };
+
+    const handleCountChange = (event) => {
+        const newCount = event.target.value;
+        setCount(newCount);
+        setInputs(Array.from({ length: newCount }, () => ''));
+    };
+
+    return (
+        <FormGroup className='flex-nowrap'>
+            <div className='d-flex align-self-center'>
+
+                <TextField
+                    size='small'
+                    label="How many snacks/drinks?"
+                    type='number'
+                    sx={{ m: 1, width: '25ch' }}
+                    InputProps={{
+                        startAdornment: <InputAdornment position="start">#</InputAdornment>,
+                    }}
+                    value={count}
+                    onChange={handleCountChange}
+                />
+
+            </div>
+
+            <div className='d-flex flex-wrap justify-content-center'>
+                {inputs.map((input, index) => (
+
+                    <TextField
+                        key={index}
+                        name={`snacksAndBev${index}`}
+                        label="Enter a snack or drink"
+                        variant="outlined"
+                        sx={{ m: 1, width: '25ch' }}
+                        value={input}
+                        onChange={(e) => handleInputChange(index, e.target.value)}
+                    />
+
+                ))}
+
+            </div>
+
+        </FormGroup>
+
+    )
+}

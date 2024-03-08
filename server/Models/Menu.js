@@ -10,6 +10,9 @@ const MenuSchema = new mongoose.Schema({
     dinner:{
         type: Object,
     },
+    snacksAndBev:{
+        type: Array,
+    },
     createdAt: {
         type: Date,
         default: Date.now

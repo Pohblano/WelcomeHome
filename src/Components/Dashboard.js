@@ -1,9 +1,8 @@
 import '../Styles/Dashboard.css'
-import photo from '../avatar.jpg'
 
 // Libraries
 import React, { useState, useEffect, useRef } from 'react'
-import { Button, Card, Nav } from 'react-bootstrap'
+import { Button, Card, Nav, OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { Link } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 // Components
@@ -21,44 +20,40 @@ export default function Dashboard({ token, setToken, deleteToken }) {
     const hasLoadedBefore = useRef(true)
 
     // CHANGED TO THIS CONDITIONING TO ENSURE THE COMPONENT DOES NOT RENDER MULTIPLE TIMES AFTER INITAL RENDER
-    useEffect(()=> {
-      if(hasLoadedBefore.current){
-        //your initializing code runs only once
-         // Calls back-end for logged-in user data
-         UserApi.getId(_id)
-         .then(user => setUser(user))
-         .catch(err => setErr(err))
+    useEffect(() => {
+        if (hasLoadedBefore.current) {
+            // your initializing code runs only once
+            // Calls back-end for logged-in user data
+            UserApi.getId(_id)
+                .then(user => setUser(user))
+                .catch(err => setErr(err))
 
-        hasLoadedBefore.current = false;
-      } else{
-        //subsequent renders
-      }
+            hasLoadedBefore.current = false;
+        } else {
+            //subsequent renders
+        }
     }, [])
-
-    // useEffect(() => {
-    //     UserApi.getId(_id)
-    //         .then(user => setUser(user))
-    //         .catch(err => setErr(err))
-    // }, [])
 
     return (
         <>
             <div id='dashboard-wrapper'>
-                <div id="d-banner">
+                {/* Top Website Banner */}
+                <div id="d-banner" className='mt-2 mx-2'>
                     <h1>Dashboard</h1>
                     <section>
-                        <div id="d-avatar" className='mx-3'>
-                            <img src={photo} alt="Dynamic Image" size="small" />
-                            <span className='mx-1'>{user.name}</span>
-                        </div>
+                        {/* User Avatar */}
+                        <OverlayTrigger key={user.name} placement='bottom' overlay={<Tooltip>{user.name}</Tooltip>}>
+                            <div key={user._id} className='icon' style={{ backgroundImage: `url(${user.img})` }} ></div>
+                        </OverlayTrigger>
 
+                        {/* Sign out button */}
                         <SignOut deleteToken={deleteToken} />
                     </section>
 
                 </div>
 
                 <div id="d-grid">
-                    <div className="w-full p-2 lg:w-2/3 d-grid-item">
+                    <div id='grid-item-1' className=" p-2 d-grid-item">
                         <DisplayMenu userID={_id} />
                     </div>
                     {/* <div className="w-full p-2 lg:w-1/3 d-grid-item">
@@ -87,7 +82,7 @@ export default function Dashboard({ token, setToken, deleteToken }) {
                         <SliderComponent />
                     </div> */}
 
-                    <EnterMenu />
+                    {/* <EnterMenu /> */}
 
                 </div>
 
@@ -98,7 +93,7 @@ export default function Dashboard({ token, setToken, deleteToken }) {
 }
 
 function SignOut({ deleteToken }) {
-    return <Button className='btn-sm' as={Link} onClick={() => deleteToken()} to="/">Sign Out</Button>
+    return <Button className='icon' as={Link} onClick={() => deleteToken()} to="/"><i className="fa-solid fa-right-from-bracket"></i></Button>
 }
 
 

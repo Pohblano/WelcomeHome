@@ -14,8 +14,6 @@ const corsOption = {
 const UserRouter = require('./Routers/UserRouter')
 const MenuRouter = require('./Routers/MenuRouter')
 
-
-
 // Middleware
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({limit: '50mb'}));
@@ -23,6 +21,7 @@ app.use(cors(corsOption));
 // Routers
 app.use("/api/profile",UserRouter)
 app.use("/api/menu", MenuRouter)
+
 
 // Server address
 const port = process.env.PORT || 3001; //Backend Routing Port
@@ -35,7 +34,6 @@ mongoose.connect(dbConnectionString, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
-
 mongoose.connection.on('connected', () => {
   console.log('Successfully connected to MongoDB database');
 });

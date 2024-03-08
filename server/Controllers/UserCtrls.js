@@ -29,7 +29,7 @@ const UserCtrls = {
     async getId(req, res, next){
         const id = req.params.id
         
-        await UserModel.findById({_id: id}, 'name email _id createdAt')
+        await UserModel.findById({_id: id}, 'name email img _id createdAt')
             .then(user => res.status(200).json(user))
             .catch(err => res.json('No user found with that _id'))
     },
