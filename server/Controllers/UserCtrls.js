@@ -20,7 +20,6 @@ const UserCtrls = {
         if (user) {
             // Generate user token
             const token = user.generateAuthToken();
-            console.log(typeof(token))
             res.status(200).json(token)
         }
         else res.json({ err })

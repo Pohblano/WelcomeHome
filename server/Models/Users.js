@@ -61,7 +61,6 @@ UserSchema.statics.authenticate = async function (email, password) {
     if (!isPasswordValid) return {err: "Password is incorrect."}
     else return {user: user}
   }else return {err: "No user found with that email."}
-
 };
 
 

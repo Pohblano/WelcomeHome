@@ -10,6 +10,9 @@ import DisplayMenu from './DisplayMenu.js'
 // import SliderComponent from './SliderComponent.js';
 import Footer from './Utils/Footer.js';
 import EnterMenu from './EnterMenu.js';
+
+import RegForm from './Utils/RegForm.js'
+
 // API
 import { UserApi } from '../Api/UserApi.js';
 
@@ -19,7 +22,6 @@ export default function Dashboard({ token, setToken, deleteToken }) {
     const { _id } = jwtDecode(token);
     const hasLoadedBefore = useRef(true)
 
-    // CHANGED TO THIS CONDITIONING TO ENSURE THE COMPONENT DOES NOT RENDER MULTIPLE TIMES AFTER INITAL RENDER
     useEffect(() => {
         if (hasLoadedBefore.current) {
             // your initializing code runs only once
@@ -42,7 +44,7 @@ export default function Dashboard({ token, setToken, deleteToken }) {
                     <h1>Dashboard</h1>
                     <section>
                         {/* User Avatar */}
-                        <OverlayTrigger key={user.name} placement='bottom' overlay={<Tooltip>{user.name}</Tooltip>}>
+                        <OverlayTrigger  key={user.name} placement='bottom' overlay={<Tooltip>{user.name}</Tooltip>}>
                             <div key={user._id} className='icon' style={{ backgroundImage: `url(${user.img})` }} ></div>
                         </OverlayTrigger>
 
@@ -83,6 +85,8 @@ export default function Dashboard({ token, setToken, deleteToken }) {
                     </div> */}
 
                     {/* <EnterMenu /> */}
+
+                    {/* <RegForm/> */}
 
                 </div>
 

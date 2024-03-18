@@ -1,10 +1,9 @@
 import '../Styles/DisplayMenu.css'
-import extra from '../Photos/extra.jpg'
 // Library Imports
 import React, { useEffect, useState, setState, useCallback, useRef } from 'react'
-import $ from 'jquery'
 import { Button, Tooltip, OverlayTrigger, Form } from 'react-bootstrap'
-import { FormGroup, FormControlLabel, Checkbox } from '@mui/material'
+import $ from 'jquery'
+import anime from 'animejs'
 // Custom Component Imports
 
 // API import
@@ -17,7 +16,6 @@ export default function DisplayMenu({ userID }) {
     const [breakfast, setBreakfast] = useState({})
     const [lunch, setLunch] = useState({})
     const [dinner, setDinner] = useState({})
-    const [foodList, setFoodList] = useState({})
     const [err, setErr] = useState('')
     const hasLoadedBefore = useRef(true)
 
@@ -38,13 +36,14 @@ export default function DisplayMenu({ userID }) {
                     setBreakfast(data.breakfast)
                     setLunch(data.lunch)
                     setDinner(data.dinner)
-                    setFoodList(data.snacksAndBev)
                 })
                 .catch(err => { console.log('Could not retrieve MENU data') })
             hasLoadedBefore.current = false;
-        } else {
-            //subsequent renders
+
+
+
         }
+
     }, [])
 
 
@@ -62,16 +61,23 @@ export default function DisplayMenu({ userID }) {
         }
     }
 
+    function updateSnacksAndBev(meal, snacksAndBev) {
+
+        MenuApi.updateSnacksAndBev(menuID, meal, snacksAndBev)
+            .then((data) => {
+                console.log(data, 'returned from api call')
+            }).catch(err => console.log(err))
+    }
+
+
     return (
 
         <div className='p-4 card'>
             <h2 id="menu-header text-light-emphasis">Jaime's Kitchen</h2>
-            <div className="options" >
-
-                <MenuToggle userID={userID} optClass={'option active'} iconClass={'fa fa-coffee'} meal={'Breakfast'} isAttending={isAttending} {...breakfast} />
-                <MenuToggle userID={userID} optClass={'option'} iconClass={'fa fa-heart'} isAttending={isAttending} meal={'Lunch'} {...lunch} />
-                <MenuToggle userID={userID} optClass={'option'} iconClass={"fa fa-cutlery"} isAttending={isAttending} meal={'Dinner'} {...dinner} />
-                <MenuToggle userID={userID} optClass={'option'} iconClass={"fas fa-cookie-bite"} meal={'extra'} foodList={foodList} />
+            <div className="options h-100" >
+                <MenuToggle userID={userID} optClass={'option active'} iconClass={'fa fa-coffee'} isAttending={isAttending} updateSnacksAndBev={updateSnacksAndBev} meal={'Breakfast'} {...breakfast} />
+                <MenuToggle userID={userID} optClass={'option'} iconClass={'fa fa-heart'} isAttending={isAttending} updateSnacksAndBev={updateSnacksAndBev} meal={'Lunch'} {...lunch} />
+                <MenuToggle userID={userID} optClass={'option'} iconClass={"fa fa-cutlery"} isAttending={isAttending} updateSnacksAndBev={updateSnacksAndBev} meal={'Dinner'} {...dinner} />
 
             </div>
 
@@ -79,10 +85,29 @@ export default function DisplayMenu({ userID }) {
     )
 }
 
+
+///////////////////////////////////////
+// Toggles betweem different components
+///////////////////////////////////////
+function MenuToggle({ userID, entree, info, time, img, optClass, iconClass, meal, isAttending, attending, updateSnacksAndBev, snacksAndBev }) {
+    const [toggle, setToggle] = useState(true);
+    const toggleChecked = () => setToggle(toggle => !toggle)
+    // Temporary bug fix and resets toggle to display original card component
+    // $(".option").on('click', () => setToggle(true));
+
+    return (
+        <>
+            <div className={optClass} style={{ backgroundImage: `url(${img})` }}>
+                {toggle && <MenuFront entree={entree} img={img} iconClass={iconClass} toggleCheck={toggleChecked} meal={meal} />}
+                {!toggle && <MenuBack toggleCheck={toggleChecked} time={time} info={info} entree={entree} meal={meal} isAttending={isAttending} attending={attending} userID={userID} snacksAndBev={snacksAndBev} updateSnacksAndBev={updateSnacksAndBev} />}
+            </div>
+        </>
+    );
+}
 /////////////////////////
 // Basic menu details
 /////////////////////////
-function MenuFront({ entree, img, toggleCheck, iconClass, meal }) {
+function MenuFront({ entree, toggleCheck, iconClass, meal }) {
     return (
         <div className='front-card'>
             <div className="shadow"></div>
@@ -106,34 +131,92 @@ function MenuFront({ entree, img, toggleCheck, iconClass, meal }) {
 ////////////////////////////////////////
 // Additional menu details and functions
 ////////////////////////////////////////
-function MenuBack({ userID, time, info, entree, meal, toggleCheck, isAttending, attending }) {
+function MenuBack({ userID, time, info, entree, meal, toggleCheck, isAttending, attending, updateSnacksAndBev, snacksAndBev }) {
     const [users, setUsers] = useState([])
-    // const [formData, setFormData] = useState({});
     const amString = `${time.split(':')[0]}:${time.split(':')[1]} AM`
     const pmString = `${time.split(':')[0] - 12}:${time.split(':')[1]} PM`
     const newTime = (time.split(':')[0] - 12 > 0) ? pmString : amString
+    const hasLoadedBefore = useRef(true)
+    const options = { hour12: false, hour: '2-digit', minute: '2-digit' };
+    const dateData = new Date()
+    const timeData = new Date(dateData).toLocaleTimeString('en-US', options);
+    const mealTime = timeToMinutes(time)  //meal time
+    const currentTime = timeToMinutes(timeData) //current time
 
     // Retrieve list of users upon render 
     useEffect(() => {
         UserApi.getAllAvatars(attending)
             .then(results => setUsers(results))
+
     }, [attending])
+
+    // Update snacks and beverages based on changes
+    const handleCheckboxChange = (e) => {
+        const { value, checked } = e.target
+        console.log(value, checked)
+        snacksAndBev.map(entry => {
+            if (entry.name === value && checked) entry.count++
+            if (entry.name === value && !checked) entry.count--
+        })
+    }
+
+    // Updates menu record snacksAndBev and attending props
+    const handleSubmit = (e) => {
+        updateSnacksAndBev(meal, snacksAndBev)
+        isAttending(meal)
+    }
+
+    // Converts 'HH:mm' time to minutes
+    function timeToMinutes(timeString) {
+        var splitTime = timeString.split(":");
+        var hours = parseInt(splitTime[0], 10);
+        var minutes = parseInt(splitTime[1], 10);
+        return hours * 60 + minutes;
+    }
 
     return (
         <div className='back-card'>
 
             <div className='d-grid'>
-
-                <span className='d-flex align-items-baseline mb-sm-3'><h1>{meal}</h1><h2 className='ms-2'>@ {newTime}</h2> </span>
+                <span className='d-flex align-items-baseline'><h3 className='mb-0'>{meal}</h3><h4 className='ms-2 mb-0'>@ {newTime}</h4> </span>
                 <h5 className=''>{entree}</h5>
-                <p id='style-8'>{info}</p>
+                <p id='style-8' className='text-body'>{info}</p>
+                <Form className='d-flex h-100 flex-column align-self-center justify-content-end'>
+                    <div className='d-flex flex-wrap justify-content-evenly overflow-x-hidden h-25'>
+                        {snacksAndBev.map((obj, idx) =>
 
-                {/* Checks if user is attending the meal in view */}
-                {(attending.indexOf(userID) === -1) ?
-                    <Button className='btn-warning' size="md" onClick={() => isAttending(meal)}>Attend</Button>
-                    :
-                    <Button className='btn-dark disabled'>Attending</Button>
-                }
+                            ((attending.indexOf(userID) === -1 && currentTime < mealTime)) ?
+                                <Form.Check // prettier-ignore
+                                    key={idx}
+                                    type='checkbox'
+                                    className='me-2'
+                                    label={obj.name}
+                                    value={obj.name}
+                                    onChange={handleCheckboxChange}
+                                /> :
+                                <Form.Check // prettier-ignore
+                                    key={idx}
+                                    type='checkbox'
+                                    className='me-2'
+                                    label={obj.name}
+                                    value={obj.name}
+                                    onChange={handleCheckboxChange}
+                                    disabled
+                                />
+
+                        )}
+                    </div>
+
+                    {/* Checks if user is attending the meal in view */}
+                    {(attending.indexOf(userID) === -1 && currentTime < mealTime) ?
+                        // <Button className='btn-warning' size="md" type="submit" onClick={() => isAttending(meal)}>Attend</Button>
+                        <Button className='btn-warning' size="md" onClick={() => handleSubmit()} >Attend</Button>
+                        :
+                        <Button className='btn-dark disabled'>Attending</Button>
+                    }
+
+                </Form>
+                <sub className='h-100 text-end mt-1'>*Make sure you make your selections before Attending</sub>
             </div>
 
             <div className='icon-tray'>
@@ -163,86 +246,4 @@ function MenuBack({ userID, time, info, entree, meal, toggleCheck, isAttending, 
     )
 }
 
-///////////////////////////////////////
-// Toggles betweem different components
-///////////////////////////////////////
-function MenuToggle({ userID, entree, info, time, img, optClass, iconClass, meal, isAttending, attending, foodList }) {
-    const [toggle, setToggle] = useState(true);
-    const toggleChecked = () => setToggle(toggle => !toggle)
-    // Temporary bug fix and resets toggle to display original card component
-    // $(".option").on('click', () => setToggle(true));
-
-    return (
-        <>
-            {(meal !== 'extra') ? (
-                <div className={optClass} style={{ backgroundImage: `url(${img})` }}>
-                    {toggle && <MenuFront entree={entree} img={img} iconClass={iconClass} toggleCheck={toggleChecked} meal={meal} />}
-                    {!toggle && <MenuBack toggleCheck={toggleChecked} time={time} info={info} entree={entree} meal={meal} isAttending={isAttending} attending={attending} userID={userID} />}
-                </div>
-            ) : (
-                <div className={optClass} style={{ backgroundImage: `url(${extra})` }}>
-                    {toggle && <MenuFront entree={entree} img={img} iconClass={iconClass} toggleCheck={toggleChecked} meal={'Snacks & Beverages'} />}
-                    {!toggle && <ExtraBack toggleCheck={toggleChecked} meal={meal} iconClass={iconClass} foodList={foodList}/>}
-                </div>
-            )}
-
-
-        </>
-    );
-}
-
-function ExtraBack({ iconClass, meal, toggleCheck, foodList }) {
-    const [formData, setFormData] = useState({});
-    // Handles general input events
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
-    };
-    console.log(foodList)
-
-    // Submits form data to backend
-    const handleSubmit = (e) => {
-        // e.preventDefault();
-
-        console.log(formData)
-    };
-    return (
-
-        <Form className='back-card' onSubmit={handleSubmit}>
-
-            <FormGroup>
-                {foodList.map((item, idx)=> {
-                   return <FormControlLabel key={idx} control={<Checkbox />} label={item} />
-                })}
-            </FormGroup>
-
-            {/* <Form.Group id='extra-grid' className='d-flex'>
-                <Form.Check // prettier-ignore
-                    type="checkbox"
-                    id='default-checkbox'
-                    label='Cookie'
-                />
-                <Form.Check // prettier-ignore
-                    type="checkbox"
-                    id='default-checkbox'
-                    label='Shake'
-                />
-            </Form.Group> */}
-
-            <div className='icon-tray'>
-                <Button variant="primary" type="submit" className="w-100 mt-4 mb-3">Submit</Button>
-                <div className="icon ms-sm-auto" onClick={toggleCheck}>
-                    <i className="fa fa-share"></i>
-                </div>
-
-            </div>
-
-
-        </Form>
-
-    )
-}
 

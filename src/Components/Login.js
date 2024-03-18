@@ -99,9 +99,7 @@ function Login({ setToken, oldToken }) {
 
                                 {/* Displays back-end error messages */}
                                 {
-                                    (err) ? (
-                                        <Error message={err} />
-                                    ) : null
+                                    (err) ? <Error message={err} /> : null
                                 }
 
                                 {/* Submit form buttons and external links */}

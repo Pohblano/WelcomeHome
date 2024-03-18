@@ -1,9 +1,8 @@
 import '../Styles/EnterMenu.css'
 // Library Imports
 import React, { useEffect, useState } from "react"
-import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
+import { Form, Button, Row, Card } from 'react-bootstrap';
 import { TextField, InputAdornment, FormGroup } from '@mui/material';
-import { Button as Btn } from '@mui/material'
 // API Imports
 import { MenuApi } from '../Api/MenuApi.js'
 // Custom Component Imports
@@ -17,7 +16,7 @@ export default function EnterMenu() {
     const [formData, setFormData] = useState({});
     const [files, setFiles] = useState([]);
     const [validated, setValidated] = useState(false);
-    // const [errors, setErrors] = useState();
+    const [err, setErr] = useState();
 
     // Handles general input events
     const handleChange = (e, idx) => {
@@ -33,12 +32,15 @@ export default function EnterMenu() {
         const form = e.currentTarget;
         e.preventDefault();
         formData['files'] = files
-
         setValidated(true);
-        if (form.checkValidity()) {
+        if (form.checkValidity() && files.length !== 0) {
+            setErr('')
             MenuApi.create(formData)
-        } else e.stopPropagation();
-
+                .catch(err => console.log(err))
+        } else {
+            e.stopPropagation();
+            setErr('There was an error in your form. Please check that you filled out everything correctly and included images')
+        }
     };
 
     return (
@@ -47,7 +49,6 @@ export default function EnterMenu() {
                 <Row className="justify-content-center mt-5">
                     <Card id="form-card" className="text-center pt-4 px-4">
                         <Card.Body >
-
                             {/* Main form body */}
                             <Form noValidate validated={validated} onSubmit={handleSubmit} className="text-primary">
                                 {
@@ -104,16 +105,19 @@ export default function EnterMenu() {
                                             </Form.Group>
 
                                             <DragDropInput files={files} setFiles={setFiles} idx={index} />
-                                            <hr />
+                                            <hr className='border-1' />
+                                            <Form.Label><h4>Snacks & Beverages</h4></Form.Label>
+                                            <SnacksAndBevInput handleChange={handleChange} setFormData={setFormData} meal={meal} />
+                                            <hr className='border-5' />
                                         </div>
                                     ))
                                 }
 
-                                <Form.Label><h2>Snacks & Beverages</h2></Form.Label>
-                                <SnacksAndBevInput handleChange={handleChange} setFormData={setFormData} />
-
                                 {/* Submit form button */}
                                 <Button variant="primary" type="submit" className="w-100 mt-4 mb-3">Submit</Button>
+                               {
+                                (err)?  <Error message={err}/>:null
+                               }
                             </Form>
 
                         </Card.Body>
@@ -125,20 +129,36 @@ export default function EnterMenu() {
 };
 
 
-function SnacksAndBevInput({ handleChange, setFormData }) {
+function SnacksAndBevInput({ setFormData, meal }) {
     const [count, setCount] = useState(0);
     const [inputs, setInputs] = useState(Array.from({ length: count }, () => ''));
+    const [err, setErr] = useState('')
+    const [obj, setObj] = useState({})
 
-    const handleInputChange = (index, value) => {
+    // Event that updates formdata based on text input values  
+    const handleInputChange = (index, e) => {
+        const value = e.target.value
         const newInputs = [...inputs];
-        newInputs[index] = value;
+        const data = []
+
         setInputs(newInputs);
+        newInputs[index] = value;
+        newInputs.map((val, idx) => {
+            const fill = {
+                name: val,
+                count: 0,
+            }
+            data.push(fill)
+        });
+
         setFormData((prevData) => ({
             ...prevData,
-            snacksAndBev: inputs,
+            [`${meal}SnacksAndBev`]: data,
         }));
-    };
 
+
+    };
+    // Event that takes in nmumber and updates array used to render new inputs
     const handleCountChange = (event) => {
         const newCount = event.target.value;
         setCount(newCount);
@@ -148,35 +168,39 @@ function SnacksAndBevInput({ handleChange, setFormData }) {
     return (
         <FormGroup className='flex-nowrap'>
             <div className='d-flex align-self-center'>
-
                 <TextField
                     size='small'
-                    label="How many snacks/drinks?"
+                    label="How many snacks/beverages?"
                     type='number'
                     sx={{ m: 1, width: '25ch' }}
                     InputProps={{
-                        startAdornment: <InputAdornment position="start">#</InputAdornment>,
+                        startAdornment: <InputAdornment position="start">#</InputAdornment>
                     }}
                     value={count}
                     onChange={handleCountChange}
                 />
-
             </div>
 
-            <div className='d-flex flex-wrap justify-content-center'>
-                {inputs.map((input, index) => (
+            <hr className='w-75 align-self-center' />
 
-                    <TextField
-                        key={index}
-                        name={`snacksAndBev${index}`}
-                        label="Enter a snack or drink"
-                        variant="outlined"
-                        sx={{ m: 1, width: '25ch' }}
-                        value={input}
-                        onChange={(e) => handleInputChange(index, e.target.value)}
-                    />
+            <div className='d-flex flex-column justify-content-center'>
+                {/* Generate number of inputs based on number of snacks/drinks*/}
+                {inputs.map((input, index) =>
 
-                ))}
+
+                    <div key={index} className='mb-4'>
+                        <TextField
+                            name={`snacksAndBev${index}`}
+                            label="Enter a snack or drink"
+                            variant="outlined"
+                            sx={{ m: 1, width: '25ch' }}
+                            value={input}
+                            onChange={(e) => handleInputChange(index, e)}
+                        />
+
+                    </div>
+
+                )}
 
             </div>
 

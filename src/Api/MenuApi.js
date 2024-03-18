@@ -27,6 +27,15 @@ export const MenuApi = {
             signal: cancel ? cancelApiObject[this.create.name].handleRequestCancellation().signal : undefined,
         })
         return response.data
+    },
+    updateSnacksAndBev: async function (menuID, meal, data, cancel = false){
+        const response = await api.request({
+            url: `/menu/${menuID}/update/${meal}`,
+            method: "POST",
+            data: [data],
+            signal: cancel ? cancelApiObject[this.create.name].handleRequestCancellation().signal : undefined,
+        })
+        return response.data
     }
 }
 
