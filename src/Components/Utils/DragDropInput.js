@@ -45,7 +45,6 @@ export default function DragDropInput({ files, setFiles, idx }) {
                     ))}
                 </div>
             </Form.Group>
-
         </div>
     )
 }
